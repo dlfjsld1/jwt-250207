@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
@@ -32,6 +33,21 @@ public class Ut {
                     .signWith(secretKey)
                     .compact();
 
+        }
+
+        public static boolean isValidToken(SecretKey secretKey, String token) {
+            try {
+                //parse 중 이상을 감지하면 오류가 뜸
+                Jwts
+                        .parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parse(token);
+            } catch(Exception e) {
+                return false;
+            }
+
+            return true;
         }
     }
 }
