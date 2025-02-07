@@ -4,8 +4,6 @@ import com.example.jwt.domain.member.member.entity.Member;
 import com.example.jwt.domain.member.member.service.AuthTokenService;
 import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.standard.util.Ut;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,19 +43,11 @@ public class AuthTokenServiceTest {
     void createToken() {
         // 토큰 만료기간 : 1년
         int expireSeconds = 60 * 60 * 24 * 365;
-        // 토큰 시크릿 키
-
         Map<String, Object> originPayload = Map.of("name", "john", "age", 23);
+
         String  jwtStr = Ut.Jwt.createToken(secretKey, expireSeconds, originPayload);
         assertThat(jwtStr).isNotBlank();
-
-        Jwt<?, ?> parsedJwt =  Jwts
-                .parser()
-                .verifyWith(secretKey)
-                .build()
-                .parse(jwtStr);
-
-        Map<String, Object> parsedPayload = (Map<String, Object>) parsedJwt.getPayload();
+        Map<String, Object> parsedPayload = Ut.Jwt.getPayload(secretKey, jwtStr);
 
         assertThat(parsedPayload).containsAllEntriesOf(originPayload);
 
