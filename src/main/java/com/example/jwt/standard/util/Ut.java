@@ -1,4 +1,4 @@
-package com.example.jwt.util;
+package com.example.jwt.standard.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
