@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.crypto.SecretKey;
 import java.util.Map;
 
+import static com.example.jwt.standard.util.Ut.Jwt.getPayload;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -47,7 +48,7 @@ public class AuthTokenServiceTest {
 
         String  jwtStr = Ut.Jwt.createToken(secretKey, expireSeconds, originPayload);
         assertThat(jwtStr).isNotBlank();
-        Map<String, Object> parsedPayload = Ut.Jwt.getPayload(secretKey, jwtStr);
+        Map<String, Object> parsedPayload = getPayload(secretKey, jwtStr);
 
         assertThat(parsedPayload).containsAllEntriesOf(originPayload);
 
@@ -75,7 +76,7 @@ public class AuthTokenServiceTest {
         boolean isValid = Ut.Jwt.isValidToken(secretKey, accessToken);
         assertThat(isValid).isTrue();
 
-        Map<String, Object> parsedPayload = Ut.Jwt.getPayload(secretKey, accessToken);
+        Map<String, Object> parsedPayload = authTokenService.getPayload(secretKey, accessToken);
         assertThat(parsedPayload).containsAllEntriesOf(
                 Map.of("id", member.getId(), "username", member.getUsername())
         );
