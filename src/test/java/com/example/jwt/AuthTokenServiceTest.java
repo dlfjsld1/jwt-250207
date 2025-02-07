@@ -4,6 +4,8 @@ import com.example.jwt.domain.member.member.entity.Member;
 import com.example.jwt.domain.member.member.service.AuthTokenService;
 import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.standard.util.Ut;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,10 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Map;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -41,11 +44,22 @@ public class AuthTokenServiceTest {
         // 토큰 만료기간 : 1년
         int expireSeconds = 60 * 60 * 24 * 365;
         // 토큰 시크릿 키
-        Key secretKey = Keys.hmacShaKeyFor("abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890".getBytes());
+        SecretKey secretKey = Keys.hmacShaKeyFor("abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890".getBytes());
 
-        String  jwt = Ut.Jwt.createToken(secretKey, expireSeconds, Map.of("name", "john", "age", 23));
-        assertThat(jwt).isNotBlank();
-        System.out.println("jwt = " + jwt);
+        Map<String, Object> originPayload = Map.of("name", "john", "age", 23);
+        String  jwtStr = Ut.Jwt.createToken(secretKey, expireSeconds, originPayload);
+        assertThat(jwtStr).isNotBlank();
+
+        Jwt<?, ?> parsedJwt =  Jwts
+                .parser()
+                .verifyWith(secretKey)
+                .build()
+                .parse(jwtStr);
+
+        Map<String, Object> parsedPayload = (Map<String, Object>) parsedJwt.getPayload();
+
+        assertThat(parsedPayload).containsAllEntriesOf(originPayload);
+
     }
 
     @Test
