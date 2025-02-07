@@ -3,7 +3,6 @@ package com.example.jwt.standard.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 import java.security.Key;
 import java.util.Date;
@@ -26,14 +25,13 @@ public class Ut {
 
             Date issuedAt = new Date();
             Date expiration = new Date(issuedAt.getTime() + 1000L * expireSeconds);
-            String jwt = Jwts.builder()
-                    .setClaims(claims)
-                    .setIssuedAt(issuedAt)
-                    .setExpiration(expiration)
-                    .signWith(secretKey, SignatureAlgorithm.HS256)
+            return Jwts.builder()
+                    .claims(claims)
+                    .issuedAt(issuedAt)
+                    .expiration(expiration)
+                    .signWith(secretKey)
                     .compact();
 
-            return jwt;
         }
     }
 }
