@@ -19,7 +19,7 @@ public class AuthTokenService {
     private int expireSeconds;
 
 
-    public String genAccessToken(Member member) {
+    String genAccessToken(Member member) {
         return Ut.Jwt.createToken(
                 keyString,
                 expireSeconds,
@@ -27,7 +27,7 @@ public class AuthTokenService {
         );
     }
 
-    public Map<String, Object> getPayload(String token) {
+    Map<String, Object> getPayload(String token) {
         Map<String, Object> payload = Ut.Jwt.getPayload(keyString, token);
 
         if(payload == null) return null;

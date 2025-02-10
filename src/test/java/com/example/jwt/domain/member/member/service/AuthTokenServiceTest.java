@@ -1,10 +1,7 @@
-package com.example.jwt;
+package com.example.jwt.domain.member.member.service;
 
 import com.example.jwt.domain.member.member.entity.Member;
-import com.example.jwt.domain.member.member.service.AuthTokenService;
-import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.standard.util.Ut;
-import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.SecretKey;
 import java.util.Map;
 
 import static com.example.jwt.standard.util.Ut.Jwt.getPayload;
