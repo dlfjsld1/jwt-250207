@@ -3,6 +3,7 @@ package com.example.jwt;
 import com.example.jwt.domain.member.member.controller.ApiV1MemberController;
 import com.example.jwt.domain.member.member.entity.Member;
 import com.example.jwt.domain.member.member.service.MemberService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,6 +36,15 @@ public class ApiV1MemberControllerTest {
     @Autowired
     private MemberService memberService;
 
+    private Member loginedMember;
+    private String token;
+
+    @BeforeEach
+    void login() {
+        loginedMember = memberService.findByUsername("user1").get();
+        token = memberService.getAuthToken(loginedMember);
+    }
+
 
     private void checkMember(ResultActions resultActions, Member member) throws Exception {
         resultActions
@@ -51,47 +60,43 @@ public class ApiV1MemberControllerTest {
                 .perform(
                         post("/api/v1/members/join")
                                 .content("""
-								{
-									"username": "%s",
-									"password": "%S",
-									"nickname": "%S"
-								}
-								"""
+                                        {
+                                            "username": "%s",
+                                            "password": "%s",
+                                            "nickname": "%s"
+                                        }
+                                        """
                                         .formatted(username, password, nickname)
                                         .stripIndent())
                                 .contentType(
                                         new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
                                 )
-
                 )
                 .andDo(print());
-
     }
 
     @Test
-    @DisplayName("회원 가입")
-    void join() throws Exception {
-        String username = "usernew";
+    @DisplayName("회원 가입1")
+    void join1() throws Exception {
+
+        String username = "userNew";
         String password = "1234";
         String nickname = "무명";
 
         ResultActions resultActions = joinRequest(username, password, nickname);
+        Member member = memberService.findByUsername("userNew").get();
 
-        Member member = memberService.findByUsername("usernew").get();
-
-        assertThat(member.getNickname()).isEqualTo("무명");
+        assertThat(member.getNickname()).isEqualTo(nickname);
 
         resultActions
                 .andExpect(status().isCreated())
                 .andExpect(handler().handlerType(ApiV1MemberController.class))
                 .andExpect(handler().methodName("join"))
-                //jsonPath = 결과 body에 json 데이터가 있으면 값은~
                 .andExpect(jsonPath("$.code").value("201-1"))
                 .andExpect(jsonPath("$.msg").value("회원 가입이 완료되었습니다."));
 
         checkMember(resultActions, member);
 
-        ;
     }
 
     @Test
@@ -110,6 +115,7 @@ public class ApiV1MemberControllerTest {
                 .andExpect(handler().methodName("join"))
                 .andExpect(jsonPath("$.code").value("409-1"))
                 .andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
+
     }
 
     @Test
@@ -132,9 +138,11 @@ public class ApiV1MemberControllerTest {
                         password : NotBlank : must not be blank
                         username : NotBlank : must not be blank
                         """.trim().stripIndent()));
+
     }
 
-    private ResultActions loginRequest(String username, String password) throws Exception {
+
+    private ResultActions loingRequest(String username, String password) throws Exception {
         return mvc
                 .perform(
                         post("/api/v1/members/login")
@@ -159,8 +167,9 @@ public class ApiV1MemberControllerTest {
 
         String username = "user1";
         String password = "user11234";
+
         // 요청
-        ResultActions resultActions = loginRequest(username, password);
+        ResultActions resultActions = loingRequest(username, password);
         Member member = memberService.findByUsername(username).get();
 
         // 응답. (요청 처리 결과)
@@ -171,26 +180,25 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%s님 환영합니다.".formatted(member.getNickname())))
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.item.id").isNumber())
+                .andExpect(jsonPath("$.data.item.id").value(member.getId()))
                 .andExpect(jsonPath("$.data.item.nickname").value(member.getNickname()))
                 .andExpect(jsonPath("$.data.item.createdDate").value(matchesPattern(member.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
                 .andExpect(jsonPath("$.data.item.modifiedDate").value(matchesPattern(member.getModifiedDate().toString().replaceAll("0+$", "") + ".*")))
                 .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
                 .andExpect(jsonPath("$.data.accessToken").exists());
 
+
     }
 
-
     @Test
-    @DisplayName("로그인 - 비밀번호 틀림")
+    @DisplayName("로그인 - 실패 - 비밀번호 틀림")
     void login2() throws Exception {
 
         String username = "user1";
         String password = "1234";
-        // 요청
-        ResultActions resultActions = loginRequest(username, password);
 
-        // 응답. (요청 처리 결과)
+        ResultActions resultActions = loingRequest(username, password);
+
         resultActions
                 .andExpect(status().isUnauthorized())
                 .andExpect(handler().handlerType(ApiV1MemberController.class))
@@ -198,18 +206,16 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.code").value("401-2"))
                 .andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
 
-
     }
-
 
     @Test
     @DisplayName("로그인 - 실패 - 존재하지 않는 username")
     void login3() throws Exception {
+
         String username = "aaaaa";
         String password = "1234";
 
-
-        ResultActions resultActions = loginRequest(username, password);
+        ResultActions resultActions = loingRequest(username, password);
 
         resultActions
                 .andExpect(status().isUnauthorized())
@@ -217,17 +223,17 @@ public class ApiV1MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(jsonPath("$.code").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("잘못된 아이디입니다."));
+
     }
 
     @Test
     @DisplayName("로그인 - 실패 - username 누락")
     void login4() throws Exception {
+
         String username = "";
-        String password = "1234";
+        String password = "123123";
 
-
-        ResultActions resultActions = loginRequest(username, password);
-
+        ResultActions resultActions = loingRequest(username, password);
 
         resultActions
                 .andExpect(status().isBadRequest())
@@ -235,17 +241,17 @@ public class ApiV1MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(jsonPath("$.code").value("400-1"))
                 .andExpect(jsonPath("$.msg").value("username : NotBlank : must not be blank"));
+
     }
 
     @Test
     @DisplayName("로그인 - 실패 - password 누락")
     void login5() throws Exception {
+
         String username = "123123";
         String password = "";
 
-
-        ResultActions resultActions = loginRequest(username, password);
-
+        ResultActions resultActions = loingRequest(username, password);
 
         resultActions
                 .andExpect(status().isBadRequest())
@@ -253,14 +259,15 @@ public class ApiV1MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(jsonPath("$.code").value("400-1"))
                 .andExpect(jsonPath("$.msg").value("password : NotBlank : must not be blank"));
-    }
 
+    }
 
     private ResultActions meRequest(String apiKey) throws Exception {
         return mvc
                 .perform(
                         get("/api/v1/members/me")
                                 .header("Authorization", "Bearer " + apiKey)
+
                 )
                 .andDo(print());
     }
@@ -268,9 +275,6 @@ public class ApiV1MemberControllerTest {
     @Test
     @DisplayName("내 정보 조회")
     void me1() throws Exception {
-//        String apiKey = "user1";
-
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ1c2VyMSIsImlhdCI6MTczOTE1NDg3MiwiZXhwIjoxNzcwNjkwODcyfQ.3oAVbqO0LuEHxiz8IB_NeGAWAM7rc5jm9fJ-VOeWyUSXwszXt-wjVWUzBASqqY1W-NE-Y8XQGjP_TQ99FtC1wg";
 
         ResultActions resultActions = meRequest(token);
 
@@ -281,14 +285,15 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
 
-//        Member member = memberService.findByApiKey(token).get();
-//        checkMember(resultActions, member);
+        checkMember(resultActions, loginedMember);
+
     }
 
     @Test
     @DisplayName("내 정보 조회 - 실패 - 잘못된 api key")
     void me2() throws Exception {
-        String apiKey = UUID.randomUUID().toString();
+
+        String apiKey = "";
 
         ResultActions resultActions = meRequest(apiKey);
 
@@ -296,6 +301,8 @@ public class ApiV1MemberControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("잘못된 인증키입니다."));
+
     }
+
 
 }

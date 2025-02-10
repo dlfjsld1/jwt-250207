@@ -54,6 +54,11 @@ public class MemberService {
     public Optional<Member> getMemberByAccessToken(String accessToken) {
         //accessToken을 파싱해서 회원 id를 가져와 Member를 리턴한다.
         Map<String, Object> payload = authTokenService.getPayload(accessToken);
+
+        if(payload == null) {
+            return Optional.empty();
+        }
+
         long id = (long)payload.get("id");
 
         return memberRepository.findById(id);
