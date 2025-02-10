@@ -56,7 +56,7 @@ public class AuthTokenServiceTest {
     }
 
     @Test
-    @DisplayName("access token 생성")
+    @DisplayName("user1 - access token 생성")
     void accessToken() {
 
         //jwt -> access token jwt
