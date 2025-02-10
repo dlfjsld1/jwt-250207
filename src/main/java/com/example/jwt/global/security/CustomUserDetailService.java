@@ -3,7 +3,6 @@ package com.example.jwt.global.security;
 import com.example.jwt.domain.member.member.entity.Member;
 import com.example.jwt.domain.member.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +15,8 @@ import java.util.List;
 // CustomUserDetailService의 역할은 사용자 이름(username)을 기반으로
 // 데이터베이스에서 사용자 정보를 조회하고,
 // 그 정보를 스프링 시큐리티가 이해할 수 있는 UserDetails 객체로 변환하여 반환하는 것.
+// * 아이디와 비밀번호를 입력하는 form 로그인을 할 때만 실행된다.
+// * apiKey, jwt 같은 인증방식은 시큐리티를 지원하지 않아 이 코드를 사용하지 않게 된다.
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
@@ -29,7 +30,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
 
-        // username, password, authorities
-        return new User(member.getUsername(), member.getPassword(), List.of());
+        // id, username, password, authorities
+        return new SecurityUser(member.getId(), member.getUsername(), member.getPassword(), List.of());
     }
 }
