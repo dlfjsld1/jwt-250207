@@ -337,6 +337,7 @@ public class ApiV1PostControllerTest {
         String token = "212123";
         String title = "새로운 글 제목";
         String content = "새로운 글 내용";
+        //String apiKey = loginedMember.getApiKey();
 
         ResultActions resultActions = writeRequest(token, title, content);
 

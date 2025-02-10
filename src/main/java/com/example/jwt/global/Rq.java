@@ -3,18 +3,17 @@ package com.example.jwt.global;
 import com.example.jwt.domain.member.member.entity.Member;
 import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.global.exception.ServiceException;
+import com.example.jwt.global.security.SecurityUser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.List;
-import java.util.Optional;
 
 // Request, Response, Session, Cookie, Header
 @Component
@@ -26,22 +25,22 @@ public class Rq {
     private final HttpServletRequest request;
     private final MemberService memberService;
 
-    public Member getAuthenticatedActor() {
+//    public Member getAuthenticatedActor() {
+//
+//        String authorizationValue = request.getHeader("Authorization");
+//        String apiKey = authorizationValue.substring("Bearer ".length());
+//        Optional<Member> opActor = memberService.findByApiKey(apiKey);
+//
+//        if(opActor.isEmpty()) {
+//            throw new ServiceException("401-1", "잘못된 인증키입니다.");
+//        }
+//
+//        return opActor.get();
+//    }
 
-        String authorizationValue = request.getHeader("Authorization");
-        String apiKey = authorizationValue.substring("Bearer ".length());
-        Optional<Member> opActor = memberService.findByApiKey(apiKey);
-
-        if(opActor.isEmpty()) {
-            throw new ServiceException("401-1", "잘못된 인증키입니다.");
-        }
-
-        return opActor.get();
-    }
-
-    public void setLogin(String username) {
+    public void setLogin(Member actor) {
         //유저 정보 생성
-        UserDetails user = new User(username, "", List.of());
+        UserDetails user = new SecurityUser(actor.getId(), actor.getUsername(), actor.getPassword(), List.of());
 
         //인증 정보 저장소. security는 여기를 확인해 해당 유저가 존재하면 로그인 한 것으로 인식.
         SecurityContextHolder.getContext().setAuthentication(
@@ -56,14 +55,18 @@ public class Rq {
             throw new ServiceException("402-2", "로그인이 필요합니다.");
         }
 
-        UserDetails user = (UserDetails) authentication.getPrincipal();
+        //인증정보 가져오기
+        Object principal = authentication.getPrincipal();
 
-        //user가 null이라는 건
-        if(user == null) {
-            throw new ServiceException("401-3", "로그인이 필요합니다.");
+        if(!(principal instanceof SecurityUser)) {
+            throw new ServiceException("401-3", "잘못된 인증 정보입니다.");
         }
 
-        String username = user.getUsername();
-        return memberService.findByUsername(username).get();
+        SecurityUser user = (SecurityUser) principal;
+
+        return Member.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .build();
     }
 }
