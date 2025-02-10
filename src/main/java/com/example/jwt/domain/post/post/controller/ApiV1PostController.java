@@ -113,9 +113,6 @@ public class ApiV1PostController {
             UserDetails principal
     ) {
 
-        if(principal == null) {
-            throw new ServiceException("401-1", "로그인이 필요합니다.");
-        }
         Member actor = rq.getActor();
         Post post =  postService.write(actor, reqBody.title(), reqBody.content(), reqBody.published(), reqBody.listed());
 
