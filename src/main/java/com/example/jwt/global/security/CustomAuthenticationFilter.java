@@ -56,15 +56,31 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         // select * from member where api_key = 'user1;
 
         //accessToken 인증 방식
-        Optional<Member> opMember = memberService.getMemberByAccessToken(accessToken);
+        Optional<Member> opAccMember = memberService.getMemberByAccessToken(accessToken);
 
         //로그인 정보와 DB가 맞지 않다면
-        if(opMember.isEmpty()) {
+        if(opAccMember.isEmpty()) {
+
+            //재발급
+            Optional<Member> opApiMember = memberService.findByApiKey(apiKey);
+
+            if(opApiMember.isEmpty()) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String newAuthToken = memberService.getAuthToken(opApiMember.get());
+
+            response.addHeader("Authorization", "Bearer " + newAuthToken);
+
+            Member actor = opApiMember.get();
+            rq.setLogin(actor);
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        Member actor = opMember.get();
+        Member actor = opAccMember.get();
         //rq.setLogin은 security의 SecurityContextHolder에 유저 정보 저장(세션 방식) = 로그인
         rq.setLogin(actor);
 

@@ -71,4 +71,8 @@ public class MemberService {
 
 //        return memberRepository.findById(id);
     }
+
+    public String genAccessToken(Member member) {
+        return authTokenService.genAccessToken(member);
+    }
 }
