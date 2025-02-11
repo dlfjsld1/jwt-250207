@@ -313,6 +313,8 @@ public class ApiV1MemberControllerTest {
 
         String apiKey = loginedMember.getApiKey();
         String expiredToken = apiKey + " eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ1c2VyMSIsImlhdCI6MTczOTI0MDc0NiwiZXhwIjoxNzM5MjQwNzUxfQ.tm-lhZpkazdOtshyrdtq0ioJCampFzx8KBf-alfVS4JUp7zJJchYdYtjMfKtW7c3t4Fg5fEY12pPt6naJjhV-Q";
+        String wrongToken = apiKey + " " + "11";
+        //잘못된 액세스 토큰을 넣어도 apiKey를 이용해 새로운 액세스 토큰을 발급하고 로그인함
 
         ResultActions resultActions = meRequest(expiredToken);
 
