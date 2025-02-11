@@ -58,7 +58,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         //accessToken 인증 방식
         Optional<Member> opAccMember = memberService.getMemberByAccessToken(accessToken);
 
-        //로그인 정보와 DB가 맞지 않다면
+        //accessToken에 문제가 있는 경우(ex - 만료됨)
         if(opAccMember.isEmpty()) {
 
             //재발급
