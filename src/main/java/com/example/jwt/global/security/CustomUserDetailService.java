@@ -8,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 //이 코드의 역할은 스프링 시큐리티가 제공하는 UserDetailsService 인터페이스를 구현하여,
 // 사용자 정보를 데이터베이스에서 가져오는 로직을 정의하는 것.
 // CustomUserDetailService의 역할은 사용자 이름(username)을 기반으로
@@ -32,6 +30,6 @@ public class CustomUserDetailService implements UserDetailsService {
 
 
         // id, username, password, authorities
-        return new SecurityUser(member.getId(), member.getUsername(), member.getPassword(), List.of());
+        return new SecurityUser(member.getId(), member.getUsername(), member.getPassword(), member.getAuthorities());
     }
 }

@@ -4,9 +4,18 @@ import com.example.jwt.global.entity.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,6 +37,25 @@ public class Member extends BaseTime {
 
     public boolean isAdmin() {
         return username.equals("admin");
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        return getMemberAuthoritiesString()
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+    }
+
+    public List<String> getMemberAuthoritiesString() {
+
+        List<String> authorities = new ArrayList<>();
+
+        if(isAdmin()) {
+            authorities.add("ROLE_ADMIN");
+        }
+
+        return authorities;
     }
 
 }

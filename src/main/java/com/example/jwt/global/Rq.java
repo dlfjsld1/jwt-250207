@@ -13,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.util.List;
-
 // Request, Response, Session, Cookie, Header
 @Component
 @RequiredArgsConstructor
@@ -40,7 +38,7 @@ public class Rq {
 
     public void setLogin(Member actor) {
         //유저 정보 생성
-        UserDetails user = new SecurityUser(actor.getId(), actor.getUsername(), "", List.of());
+        UserDetails user = new SecurityUser(actor.getId(), actor.getUsername(), "", actor.getAuthorities());
 
         //인증 정보 저장소. security는 여기를 확인해 해당 유저가 존재하면 로그인 한 것으로 인식.
         SecurityContextHolder.getContext().setAuthentication(

@@ -30,8 +30,8 @@ public class SecurityConfig {
                                 .permitAll() //이 위에 지정한건 허용하고
                                 .requestMatchers("/api/*/members/login", "/api/*/members/join")
                                 .permitAll()
-//                                .requestMatchers("/api/v1/posts/statistics")
-//                                .permitAll()
+                                .requestMatchers("/api/v1/posts/statistics")
+                                .hasAuthority("ADMIN_ACT")
                                 .anyRequest()
                                 .authenticated() // 나머지는 막아라
                 )
@@ -58,14 +58,14 @@ public class SecurityConfig {
                                 )
                                 .accessDeniedHandler(
                                         (request, response, authException) -> {
-                                    response.setContentType("application/json;charset=UTF-8");
-                                    response.setStatus(401);
-                                    response.getWriter().write(
-                                            Ut.Json.toString(
-                                                    new RsData("403-1", "접근 권한이 없습니다.")
-                                            )
-                                        );
-                                    }
+                                            response.setContentType("application/json;charset=UTF-8");
+                                            response.setStatus(403);
+                                            response.getWriter().write(
+                                                    Ut.Json.toString(
+                                                            new RsData("403-1", "접근 권한이 없습니다.")
+                                                    )
+                                            );
+                                        }
                                 )
                 );
         ;

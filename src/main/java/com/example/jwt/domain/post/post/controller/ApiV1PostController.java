@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +37,6 @@ public class ApiV1PostController {
 
     @GetMapping("/statistics")
     public RsData<StatisticsResBody> getStatistics() {
-
-        Member actor = rq.getActor();
-
-        if(!actor.isAdmin()) {
-            throw new ServiceException("403-1", "접근 권한이 없습니다.");
-        }
 
         return new RsData<>(
                 "200-1",
