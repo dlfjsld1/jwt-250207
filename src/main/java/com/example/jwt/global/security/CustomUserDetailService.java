@@ -17,6 +17,7 @@ import java.util.List;
 // 그 정보를 스프링 시큐리티가 이해할 수 있는 UserDetails 객체로 변환하여 반환하는 것.
 // * 아이디와 비밀번호를 입력하는 form 로그인을 할 때만 실행된다.
 // * apiKey, jwt 같은 인증방식은 시큐리티를 지원하지 않아 이 코드를 사용하지 않게 된다.
+// * 다만 인가 체크를 할 때는 유용하므로 테스트에 쓸 수 있다.
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {

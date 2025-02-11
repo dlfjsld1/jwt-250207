@@ -536,4 +536,43 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.msg").value("자신이 작성한 글만 삭제 가능합니다."));
 
     }
+
+    @Test
+    @DisplayName("통계 - 관리자 기능 - 관리자 접근")
+    @WithUserDetails("admin")
+    void statisticAdmin() throws Exception {
+        ResultActions resultActions = mvc.perform(
+                get("/api/v1/posts/statistics")
+        )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("getStatistics"))
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("통계 조회가 완료되었습니다."))
+                .andExpect(jsonPath("$.data.postCount").value(10))
+                .andExpect(jsonPath("$.data.postPublishedCount").value(10))
+                .andExpect(jsonPath("$.data.postListedCount").value(10));
+
+    }
+
+    @Test
+    @DisplayName("통계 - 관리자 기능 - user1 접근")
+    @WithUserDetails("user1")
+    void statisticsUser() throws Exception {
+        ResultActions resultActions = mvc.perform(
+                    get("/api/v1/posts/statistics")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("getStatistics"))
+                .andExpect(jsonPath("$.code").value("403-1"))
+                .andExpect(jsonPath("$.msg").value("접근 권한이 없습니다."));
+
+    }
 }

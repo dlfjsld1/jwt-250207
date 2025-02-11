@@ -30,6 +30,8 @@ public class SecurityConfig {
                                 .permitAll() //이 위에 지정한건 허용하고
                                 .requestMatchers("/api/*/members/login", "/api/*/members/join")
                                 .permitAll()
+//                                .requestMatchers("/api/v1/posts/statistics")
+//                                .permitAll()
                                 .anyRequest()
                                 .authenticated() // 나머지는 막아라
                 )
