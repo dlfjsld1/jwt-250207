@@ -40,13 +40,23 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         String authToken = authorizationHeader.substring("Bearer ".length());
 
+        String[] tokenBits = authToken.split(" ", 2);
+
+        if(tokenBits.length < 2) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String apiKey = tokenBits[0];
+        String accessToken = tokenBits[1];
+
         //기존 apiKey 방식 인증
 //        Optional<Member> opMember = memberService.findByApiKey(apiKey);
 
         // select * from member where api_key = 'user1;
 
         //accessToken 인증 방식
-        Optional<Member> opMember = memberService.getMemberByAccessToken(authToken);
+        Optional<Member> opMember = memberService.getMemberByAccessToken(accessToken);
 
         //로그인 정보와 DB가 맞지 않다면
         if(opMember.isEmpty()) {
