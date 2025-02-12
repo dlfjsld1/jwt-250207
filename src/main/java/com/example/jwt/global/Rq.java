@@ -37,6 +37,8 @@ public class Rq {
     }
 
     public Member getActor() {
+        //Authentication 객체는 현재 인증된 사용자의 정보를 담고 있음
+        //SecurityContextHolder.getContext().getAuthentication()는 현재 인증된 사용자의 정보를 가져옴
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if(authentication == null) {
@@ -77,6 +79,7 @@ public class Rq {
     }
     public void addCookie(String name, String value) {
         Cookie accsessTokenCookie = new Cookie(name, value);
+        //쿠키의 보안 설정
         accsessTokenCookie.setDomain("localhost");
         accsessTokenCookie.setPath("/");
         accsessTokenCookie.setHttpOnly(true);
@@ -87,5 +90,19 @@ public class Rq {
 
     public Member getRealActor(Member actor) {
         return memberService.findById(actor.getId()).get();
+    }
+
+    //원칙적으로 쿠키를 서버에서 삭제할 수 없음
+    public void removeCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
+        //쿠키의 만료 시간을 0으로 설정하면 삭제나 마찬가지
+        cookie.setDomain("localhost");
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "Strict");
+        cookie.setMaxAge(0);
+
+        response.addCookie(cookie);
     }
 }

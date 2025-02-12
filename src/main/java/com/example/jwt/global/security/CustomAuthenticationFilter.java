@@ -89,7 +89,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String url = request.getRequestURI();
 
         //로그인, 회원가입은 토큰이 없어도 접근 가능
-        if(List.of("/api/v1/members/login", "/api/v1/members/join").contains(url)) {
+        if(List.of("/api/v1/members/login", "/api/v1/members/join", "/api/*/members/logout").contains(url)) {
             //filterChain.doFilter()은 다음 필터를 호출하는 메서드
             //다음 필터를 호출하지 않으면 다음 필터가 실행되지 않음
             filterChain.doFilter(request, response);
