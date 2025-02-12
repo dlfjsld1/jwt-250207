@@ -27,7 +27,7 @@ public class ApiV1PostController {
 
     private final PostService postService;
     private final Rq rq;
-
+    private final MemberService memberService;
 
     record StatisticsResBody(
             long postCount,
@@ -137,7 +137,8 @@ public class ApiV1PostController {
     ) {
 
         Member actor = rq.getActor();
-        Post post =  postService.write(actor, reqBody.title(), reqBody.content(), reqBody.published(), reqBody.listed());
+        Member realActor = rq.getRealActor(actor);
+        Post post = postService.write(realActor, reqBody.title(), reqBody.content(), reqBody.published(), reqBody.listed());
 
         return new RsData<>(
                 "201-1",
@@ -188,8 +189,6 @@ public class ApiV1PostController {
                 "%d번 글 삭제가 완료되었습니다.".formatted(id)
         );
     }
-
-    private final MemberService memberService;
 }
 
 

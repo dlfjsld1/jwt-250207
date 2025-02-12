@@ -51,6 +51,7 @@ public class Rq {
 
         SecurityUser user = (SecurityUser) principal;
 
+        //DB 조회를 피하기 위한 가짜 Member 객체 생성
         return Member.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -82,5 +83,9 @@ public class Rq {
         accsessTokenCookie.setSecure(true);
         accsessTokenCookie.setAttribute("SameSite", "Strict");
         response.addCookie(accsessTokenCookie);
+    }
+
+    public Member getRealActor(Member actor) {
+        return memberService.findById(actor.getId()).get();
     }
 }

@@ -1,6 +1,7 @@
 package com.example.jwt.domain.post.comment.controller;
 
 import com.example.jwt.domain.member.member.entity.Member;
+import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.domain.post.comment.dto.CommentDto;
 import com.example.jwt.domain.post.comment.entity.Comment;
 import com.example.jwt.domain.post.post.entity.Post;
@@ -61,6 +62,9 @@ public class ApiV1CommentController {
             WriteReqBody reqBody
             ) {
         Member actor = rq.getActor();
+
+        Member realActor = rq.getRealActor(actor);
+
         Comment comment = _write(postId, actor, reqBody.content);
 
         //커멘트가 등록되지 않고 프록시로 존재해 아이디가 없음
@@ -136,6 +140,7 @@ public class ApiV1CommentController {
         );
     }
 
+    private final MemberService memberService;
 }
 
 
