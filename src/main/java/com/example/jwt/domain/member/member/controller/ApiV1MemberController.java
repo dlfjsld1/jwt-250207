@@ -76,8 +76,6 @@ public class ApiV1MemberController {
 
         String accessToken = memberService.genAccessToken(member);
 
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-
         //쿠키 보안 설정
         rq.addCookie("accessToken", accessToken);
         rq.addCookie("apiKey", member.getApiKey());
